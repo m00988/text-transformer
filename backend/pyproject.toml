@@ -11,6 +11,7 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "openai>=3.14.1",
     "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
 ]
 
 [project.scripts]
