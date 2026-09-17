@@ -13,6 +13,7 @@ body {
 }
 .title {
     text-align: center;
+    font-family: sans-serif;
   font-size: 72px;
   background: linear-gradient(135deg, #ff00cc, #3333ff);
   -webkit-background-clip: text;
@@ -43,7 +44,7 @@ body {
     outline: none;
 
     resize: vertical;
-    overflow-y: auto;
+    overflow: hidden;
 
     box-shadow: 5px 5px 0 #000, 10px 10px 0 #4a90e2;
 
@@ -246,5 +247,27 @@ body {
     box-shadow: 2px 2px 0 #000, 4px 4px 0 #ff00cc;
 }
 
+@media (max-width: 600px) {
 
+    .brutalist-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
 
+    .brutalist-input {
+        width: calc(100vw - 40px);
+        max-width: 500px;
+    }
+
+    .buttons {
+        width: calc(100vw - 40px);
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .buttons button {
+        padding: 12px 18px;
+        font-size: 16px;
+    }
+}
