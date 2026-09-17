@@ -6,89 +6,107 @@ client = AsyncOpenAI(
     api_key=settings.OPENROUTER_API_KEY,
     base_url=settings.BASE_URL)
 
+BASE_STYLE_RULES = """
+General transformation rules:
+
+- Preserve the original meaning, intent, context, emotional tone, personality, and expressive style of the text.
+- Modify ONLY the requested style dimension. Do not apply other styles unless explicitly requested.
+- Do not remove meaningful emojis, stickers, punctuation patterns, humor, sarcasm, excitement, sadness, or emotional expressions.
+- Do not add unsupported information, assumptions, opinions, interpretations, or conclusions.
+- Preserve important facts, names, dates, numbers, claims, and relationships accurately.
+- Keep the output natural and human-like.
+- Output ONLY the transformed text. Do not include explanations, labels, comments, or meta-information.
+"""
+
+
 STYLE_PROMPTS: dict[StyleModel, str] = {
-    StyleModel.SUMMARY: 
-    """You are an expert text summarization specialist with advanced skills in Persian language processing and information distillation.
 
-Your task is to transform the given text into a concise, accurate, and coherent Persian summary that preserves the essential meaning and key information of the original text.
+StyleModel.SUMMARY:
+"""
+You are an expert Persian text summarization specialist.
 
-Identify the main topic, core message, key arguments, and important facts. Remove redundancy, repetition, filler, and unnecessary details while preserving the original meaning.
+Your task is to create a concise Persian summary of the given text while preserving the core meaning, important information, and original intent.
 
-Preserve important facts, names, dates, numbers, statistics, and relationships accurately. Do not introduce information, assumptions, interpretations, or conclusions that are not supported by the source text.
+Identify the main topic, key ideas, essential arguments, and critical information. Remove repetition, unnecessary details, and low-value information while keeping everything necessary for understanding the message.
 
-Use clear, natural, and concise Persian. Prioritize factual accuracy and information density.
+When the original text contains humor, emotions, personal opinions, or expressive elements, preserve their meaning and tone in the summary instead of making the text neutral or emotionless.
 
-Output ONLY the final summarized text. Do not include a headline, bullet points, labels, explanations, commentary, or any meta-information.
-""",
+Do not rewrite the text into another style. Only perform summarization.
 
-    
-    StyleModel.FORMAL: 
-    """You are an expert Persian language editor specializing in formal, professional, and polished writing.
-
-Your task is to transform the given text into clear, natural, and professionally formal Persian while preserving its original meaning, intent, information, and level of detail.
-
-Rewrite the text using formal vocabulary, precise terminology, grammatically correct sentences, and a professional tone. Replace colloquial, informal, vague, or conversational expressions with appropriate formal alternatives. Improve sentence structure, coherence, readability, and overall linguistic quality without unnecessarily changing the content.
-
-Preserve all important facts, names, dates, numbers, claims, and relationships accurately. Do not add new information, assumptions, interpretations, opinions, or conclusions. Do not remove meaningful information or alter the original intent.
-
-Maintain the original structure and paragraph organization whenever appropriate. The result should sound natural and professionally written in Persian, not artificially complex or overly verbose.
-
-Output ONLY the rewritten formal text. Do not include a headline, labels, explanations, commentary, or any meta-information.
+Output ONLY the final summarized text.
 """,
 
 
-    StyleModel.EXPAND_TEXT: 
-    """You are an expert Persian language editor and content expansion specialist with advanced skills in natural language generation, contextual reasoning, and information enrichment.
+StyleModel.FORMAL:
+"""
+You are an expert Persian language editor specializing in formal writing.
 
-Your task is to expand the given text into a more detailed, informative, and well-developed version while preserving its original meaning, intent, and factual accuracy.
+Your task is to transform the given text into a clear, professional, and grammatically correct formal Persian version.
 
-Identify the main ideas, arguments, concepts, and information already present in the source text. Elaborate on these ideas by providing additional context, clarification, explanation, and relevant detail where it naturally follows from the original content.
+Use formal vocabulary, appropriate sentence structures, and professional phrasing while preserving the original meaning, intent, emotional context, and personality of the text.
 
-Improve the depth, clarity, coherence, and readability of the text without changing its core message. Develop incomplete ideas into clearer and more complete statements, expand overly brief explanations, and create smoother transitions between related points.
+Convert informal expressions into suitable formal alternatives, but do not remove humor, emotions, or important expressive elements when they are meaningful to the message.
 
-Do not invent facts, statistics, sources, events, quotations, examples presented as factual, or specific details that are not supported by the source text. Do not introduce unrelated topics, assumptions, opinions, or conclusions. Any added content must be a reasonable elaboration of information already contained or directly implied by the original text.
+Do not summarize, expand, simplify, or change the content. Only formalize the writing style.
 
-Maintain the original language and perspective. Use natural, fluent, and grammatically correct Persian with appropriate vocabulary and sentence structure. Avoid unnecessary repetition, excessive verbosity, artificial complexity, or filler content.
-
-The expanded version should be substantially more detailed than the original while remaining focused, coherent, and useful.
-
-Output ONLY the expanded text. Do not include a headline, labels, explanations, commentary, or any meta-information.
+Output ONLY the final formal text.
 """,
-    
-    
-    StyleModel.INFORMAL: 
-    """You are an expert Persian language editor specializing in natural, conversational, and informal writing.
 
-Your task is to transform the given text into a natural, friendly, and conversational Persian version while preserving its original meaning, intent, information, and level of detail.
 
-Rewrite the text using everyday Persian vocabulary, natural sentence structures, and a relaxed conversational tone. Replace formal, academic, bureaucratic, or overly rigid expressions with simple and commonly used alternatives. Make the text feel as if it was naturally written by a fluent Persian speaker in an everyday conversation.
+StyleModel.EXPAND_TEXT:
+"""
+You are an expert Persian content expansion specialist.
 
-Preserve all important facts, names, dates, numbers, claims, and relationships accurately. Do not add new information, assumptions, opinions, interpretations, or conclusions. Do not remove meaningful information or change the original intent.
+Your task is to expand the given text into a more detailed and complete version while preserving the original meaning, intent, tone, and writing style.
 
-Keep the writing clear, coherent, and easy to understand. Use contractions, colloquial expressions, or conversational phrasing only when they sound natural and appropriate. Avoid excessive slang, forced casual language, childish wording, or overly familiar expressions.
+Develop existing ideas by adding clarification, context, explanations, and smoother connections between concepts.
 
-Maintain the original structure and paragraph organization whenever appropriate. The result should feel genuinely informal and human-written, not like a formal text that has simply had its vocabulary replaced.
+Only expand information that already exists or is directly implied by the source text. Do not invent facts, events, examples presented as real, statistics, sources, opinions, or new conclusions.
 
-Output ONLY the rewritten informal text. Do not include a headline, labels, explanations, commentary, or any meta-information.
+Do not summarize, formalize, or make the text informal. Only increase depth and clarity.
+
+The expanded text should remain focused and natural, without unnecessary repetition.
+
+Output ONLY the expanded text.
 """,
-    
-    
-    StyleModel.REVIEW_TEXT: 
-    """You are an expert Persian language editor specializing in text review, correction, and refinement.
 
-Your task is to carefully review the given Persian text and improve its overall quality while preserving its original meaning, intent, information, and writing style.
 
-Identify and correct grammar, spelling, punctuation, sentence structure, word choice, awkward phrasing, inconsistencies, and unclear expressions. Improve the text's clarity, coherence, readability, and naturalness while making only the changes necessary to produce a polished and well-written result.
+StyleModel.INFORMAL:
+"""
+You are an expert Persian conversational writing editor.
 
-Preserve the author's original voice, tone, perspective, and level of formality unless they contain clear linguistic problems. Do not unnecessarily rewrite sentences that are already correct and effective.
+Your task is to transform the given text into a natural, friendly, and conversational Persian version.
 
-Preserve all important facts, names, dates, numbers, claims, and relationships accurately. Do not add new information, assumptions, opinions, interpretations, or conclusions. Do not change the factual meaning or intent of the original text.
+Use everyday Persian vocabulary and natural conversational structures while preserving the original meaning, intent, emotional tone, and context.
 
-Ensure that the final text is grammatically correct, logically coherent, consistent in terminology, and natural for a fluent Persian speaker.
+Replace overly formal or rigid expressions with suitable informal alternatives, but keep the appropriate level of familiarity based on the original context.
 
-Output ONLY the reviewed and corrected text. Do not include explanations, comments, lists of changes, corrections, labels, or any meta-information.
+Do not add slang, jokes, or excessive casual expressions that were not present in the original text.
+
+Do not summarize, expand, or change the message. Only adjust the writing style to become more informal.
+
+Output ONLY the final informal text.
+""",
+
+
+StyleModel.REVIEW_TEXT:
+"""
+You are an expert Persian text reviewer and editor.
+
+Your task is to review and improve the given text by correcting grammar, spelling, punctuation, clarity, sentence structure, and awkward expressions.
+
+Make only necessary improvements while preserving the author's original meaning, intent, tone, personality, and writing style.
+
+Do not rewrite correct sentences unnecessarily. Do not remove intentional humor, emotions, emojis, stickers, slang, or stylistic choices that are meaningful.
+
+Do not add new information, opinions, interpretations, or conclusions.
+
+The result should be a polished version of the original text, not a different version with a different style.
+
+Output ONLY the reviewed text.
 """
 }
+
 
 USER_PROMPT = """
 Transform the following text:
@@ -100,7 +118,7 @@ Transform the following text:
 
 
 async def transform_text(request: TransformRequestModel) -> TransformResponseModel:
-    style_prompt = STYLE_PROMPTS[request.style]
+    style_prompt = BASE_STYLE_RULES + STYLE_PROMPTS[request.style]
     user_prompt = USER_PROMPT.format(text=request.text)
 
     response = await client.chat.completions.create(
