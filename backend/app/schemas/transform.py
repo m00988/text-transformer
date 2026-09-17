@@ -11,9 +11,9 @@ class StyleModel(str, Enum):
 
 
 class TransformBaseModel(BaseModel):
-    text: str = Field(..., ge=50, lt=1000, 
-                      description="Enter a text; the text must be longer than 50 characters.") 
-    
+    text: str = Field(..., min_length=50, max_length=1000,
+                      description="Enter a text; the text must be longer than 50 characters.")
+
     style: StyleModel = Field(..., description="Select a style for the transformed text.")
 
 class TransformRequestModel(TransformBaseModel):
